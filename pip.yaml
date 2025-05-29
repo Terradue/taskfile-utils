@@ -1,0 +1,13 @@
+version: '3'
+
+tasks:
+
+  conditional_pip_install:
+    desc: Installs an input package via Pip, if not already installed.
+    preconditions:
+    - sh: command -v pip
+      msg: pip is not installed, please refer to https://pip.pypa.io/en/stable/installation/
+    status:
+    - pip show {{.PACKAGE}}
+    cmds:
+    - pip install {{.PACKAGE}}
