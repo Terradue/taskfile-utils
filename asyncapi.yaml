@@ -20,7 +20,7 @@ tasks:
   generate_docs:
     desc: Given an input OpenAPI YAML document, creates human-readable documentation.
     cmds:
-    - task: invoke_asyncapi
+    - task: invoke_generator
       vars:
         API: '{{.API}}'
         TEMPLATE: '@asyncapi/html-template@3.0.0'
