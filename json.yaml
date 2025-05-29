@@ -1,11 +1,5 @@
 version: 3
 
-includes:
-  pip_utils:
-    taskfile: https://raw.githubusercontent.com/Terradue/taskfile-utils/refs/heads/main/pip.yaml
-    internal: true
-    flatten: true
-
 tasks:
 
   create_models:
