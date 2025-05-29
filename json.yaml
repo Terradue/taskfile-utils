@@ -26,6 +26,6 @@ tasks:
     deps:
     - task: conditional_pip_install
       vars:
-        COMMAND: check-jsonschema
+        PACKAGE: check-jsonschema
     cmds:
     - check-jsonschema --schemafile {{.SCHEMA}} {{.INSTANCE}}
