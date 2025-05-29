@@ -2,7 +2,7 @@ version: '3'
 
 tasks:
 
-  conditional_pip_install:
+  conditional_install:
     desc: Installs an input package via Pip, if not already installed.
     preconditions:
     - sh: command -v pip

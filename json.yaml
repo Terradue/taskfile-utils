@@ -1,11 +1,14 @@
 version: 3
 
+includes:
+  pip_installer: https://raw.githubusercontent.com/Terradue/taskfile-utils/refs/heads/main/pip.yaml
+
 tasks:
 
   create_json_models:
     desc: Given a JSON Schema, generates the related Pydantic v2 models (with field aliases).
     deps:
-    - task: conditional_pip_install
+    - task: pip_installer:conditional_install
       vars:
         PACKAGE: datamodel-code-generator
     vars:
@@ -24,7 +27,7 @@ tasks:
     desc: Executes a strict JSON Schema check of an instance file against an input schema.
     ignore_error: true
     deps:
-    - task: conditional_pip_install
+    - task: pip_installer:conditional_install
       vars:
         PACKAGE: check-jsonschema
     cmds:
