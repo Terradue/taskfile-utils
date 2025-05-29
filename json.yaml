@@ -5,7 +5,7 @@ includes:
 
 tasks:
 
-  create_json_models:
+  create_models:
     desc: Given a JSON Schema, generates the related Pydantic v2 models (with field aliases).
     deps:
     - task: pip_installer:conditional_install
@@ -23,7 +23,7 @@ tasks:
                          --snake-case-field \
                          --output {{.OUTPUT}}
 
-  check_json_instance:
+  check_instance:
     desc: Executes a strict JSON Schema check of an instance file against an input schema.
     ignore_error: true
     deps:
