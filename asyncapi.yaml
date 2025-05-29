@@ -2,6 +2,7 @@ version: 3
 
 includes:
   npm_installer: https://raw.githubusercontent.com/Terradue/taskfile-utils/refs/heads/main/npm.yaml
+  pip_installer: https://raw.githubusercontent.com/Terradue/taskfile-utils/refs/heads/main/pip.yaml
 
 tasks:
 
@@ -25,3 +26,12 @@ tasks:
         API: '{{.API}}'
         TEMPLATE: '@asyncapi/html-template@3.0.0'
         OUTPUT: '{{.OUTPUT}}'
+
+  generate_models:
+    desc: Given an input OpenAPI YAML document, creates Pydantic v2 models.
+    deps:
+    - task: pip_installer:conditional_install
+      vars:
+        PACKAGE: zen-generator
+    cmds:
+    - zen-generator pure-python --asyncapi-file {{.API}} --models-file {{.OUTPUT}}
