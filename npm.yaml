@@ -2,7 +2,7 @@ version: 3
 
 tasks:
 
-  conditional_npm_install:
+  conditional_install:
     desc: Installs an input package via NPM, if not already installed.
     preconditions:
     - sh: command -v npm
