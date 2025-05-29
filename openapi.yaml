@@ -9,7 +9,7 @@ vars:
 
 tasks:
 
-  openapi_docs:
+  generate_docs:
     desc: Given an input OpenAPI YAML document, creates Redocly human-readable documentation.
     vars:
       OUTPUT: './docs/openapi/index.html'
@@ -20,7 +20,7 @@ tasks:
     cmds:
     - redocly build-docs {{.INPUT_API}} --output={{.OUTPUT_DOC}}
 
-  openapi_skeleton:
+  generate_skeleton:
     desc: Given an input OpenAPI YAML document, creates FastAPI server skeleton with Pydantic v2 models.
     deps:
     - task: pip_utils:conditional_install
