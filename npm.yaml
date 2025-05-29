@@ -1,0 +1,13 @@
+version: 3
+
+tasks:
+
+  conditional_npm_install:
+    desc: Installs an input package via NPM, if not already installed.
+    preconditions:
+    - sh: command -v npm
+      msg: npm is not installed, please refer to https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
+    status:
+    - npm list -g {{.PACKAGE}}
+    cmds:
+    - npm install -g {{.PACKAGE}}
