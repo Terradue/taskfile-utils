@@ -4,21 +4,16 @@ includes:
   npm_utils: https://raw.githubusercontent.com/Terradue/taskfile-utils/refs/heads/main/npm.yaml
   pip_utils: https://raw.githubusercontent.com/Terradue/taskfile-utils/refs/heads/main/pip.yaml
 
-vars:
-  INPUT_API: './openapi.yaml'
-
 tasks:
 
   generate_docs:
     desc: Given an input OpenAPI YAML document, creates Redocly human-readable documentation.
-    vars:
-      OUTPUT: './docs/openapi/index.html'
     deps:
     - task: npm_utils:conditional_install
       vars:
         PACKAGE: '@redocly/cli'
     cmds:
-    - redocly build-docs {{.INPUT_API}} --output={{.OUTPUT_DOC}}
+    - redocly build-docs {{.API}} --output={{.OUTPUT}}
 
   generate_skeleton:
     desc: Given an input OpenAPI YAML document, creates FastAPI server skeleton with Pydantic v2 models.
@@ -27,4 +22,4 @@ tasks:
       vars:
         PACKAGE: fastapi-code-generator
     cmds:
-    - fastapi-codegen --input {{.INPUT_API}} --output {{.OUTPUT_SERVER}} --output-model-type pydantic_v2.BaseModel
+    - fastapi-codegen --input {{.API}} --output {{.OUTPUT}} --output-model-type pydantic_v2.BaseModel
