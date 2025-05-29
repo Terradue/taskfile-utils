@@ -1,0 +1,27 @@
+version: 3
+
+includes:
+  npm_installer: https://raw.githubusercontent.com/Terradue/taskfile-utils/refs/heads/main/npm.yaml
+
+tasks:
+
+  invoke_generator:
+    desc: Allow invoke the 'asyncapi generate' command with arbitrary parameters.
+    deps:
+    - task: npm_installer:conditional_install
+      vars:
+        PACKAGE: '@asyncapi/cli'
+    - task: npm_installer:conditional_install
+      vars:
+        PACKAGE: '@asyncapi/generator-react-sdk'
+    cmds:
+    - asyncapi generate fromTemplate {{.API}} {{.TEMPLATE}} -o {{.OUTPUT}} {{.AUX_PARAMETER}} --use-new-generator --force-write
+
+  generate_docs:
+    desc: Given an input OpenAPI YAML document, creates human-readable documentation.
+    cmds:
+    - task: invoke_asyncapi
+      vars:
+        API: '{{.API}}'
+        TEMPLATE: '@asyncapi/html-template@3.0.0'
+        OUTPUT: '{{.OUTPUT}}'
