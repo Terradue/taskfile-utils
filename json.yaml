@@ -2,7 +2,7 @@ version: 3
 
 tasks:
 
-  create_models:
+  create_json_models:
     desc: Given a JSON Schema, generates the related Pydantic v2 models (with field aliases).
     deps:
     - task: conditional_pip_install
