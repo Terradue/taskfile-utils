@@ -1,0 +1,65 @@
+version: 3
+
+vars:
+  MAVEN_REPO: "https://repo1.maven.org/maven2"
+  LOCAL_M2_REPO: "$HOME/.m2/repository"
+
+tasks:
+
+  maven_download:
+    internal: true
+    preconditions:
+    - sh: command -v wget
+      msg: wget is not installed, please refer to https://www.gnu.org/software/wget/
+    status:
+    - test -f {{.LOCAL_FILE}}
+    cmds:
+      - |
+        echo "Downloading {{.ARTIFACT_URL}} to local Maven repository: {{.LOCAL_FILE}}"
+        mkdir -p "{{.LOCAL_DIR}}"
+        wget {{.ARTIFACT_URL}} -O {{.LOCAL_FILE}}
+        if [[ $? -ne 0 ]]; then
+          echo "Download failed. Please check the coordinates or repository."
+          exit 1
+        else
+          echo "Download complete: $local_file"
+        fi
+
+  execute:
+    desc: Simplifies the Java artifact download and execution from the Maven Central Repository via wget, rather than resolving it via Apache Maven.
+    cmds:
+      - |
+        COORDINATES="{{.COORDINATES}}"
+        echo "Input Coordinates: $COORDINATES"
+        if [[ "$COORDINATES" =~ ^([^:\ ]+):([^:\ ]+)(:([^:\ ]*)(:([^:\ ]+))?)?:([^:\ ]+)$ ]]; then
+          groupId="${BASH_REMATCH[1]}"
+          artifactId="${BASH_REMATCH[2]}"
+          type="${BASH_REMATCH[4]}"
+          classifier="${BASH_REMATCH[6]}"
+          version="${BASH_REMATCH[7]}"
+          [[ -z "$type" ]] && type="jar"
+          [[ -z "$classifier" ]] && classifier=""
+          echo "Extracted parts:"
+          echo "  groupId: $groupId"
+          echo "  artifactId: $artifactId"
+          echo "  type: $type"
+          echo "  classifier: $classifier"
+          echo "  version: $version"
+
+          # Convert groupId to path
+          group_path=$(echo "$groupId" | tr '.' '/')
+          base_url="${MAVEN_REPO}/${group_path}/${artifactId}/${version}"
+          file_name="${artifactId}-${version}"
+          if [[ -n "$classifier" ]]; then
+            file_name="${file_name}-${classifier}"
+          fi
+          file_name="${file_name}.${type}"
+          artifact_url="${base_url}/${file_name}"
+
+          # Determine local Maven repository path
+          local_dir="${LOCAL_M2_REPO}/${group_path}/${artifactId}/${version}"
+          local_file="${local_dir}/${file_name}"
+
+          task maven_download LOCAL_DIR=${local_dir} LOCAL_FILE=${local_file} ARTIFACT_URL=${artifact_url}
+
+          java -jar ${local_file} {{.OPTIONS}}
