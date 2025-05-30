@@ -27,6 +27,9 @@ tasks:
 
   execute:
     desc: Simplifies the Java artifact download and execution from the Maven Central Repository via wget, rather than resolving it via Apache Maven.
+    preconditions:
+    - sh: command -v java
+      msg: java is not installed, please refer to https://www.java.com/en/download/
     cmds:
       - |
         COORDINATES="{{.COORDINATES}}"
