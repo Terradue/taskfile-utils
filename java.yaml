@@ -42,12 +42,6 @@ tasks:
           version="${BASH_REMATCH[7]}"
           [[ -z "$type" ]] && type="jar"
           [[ -z "$classifier" ]] && classifier=""
-          echo "Extracted parts:"
-          echo "  groupId: $groupId"
-          echo "  artifactId: $artifactId"
-          echo "  type: $type"
-          echo "  classifier: $classifier"
-          echo "  version: $version"
 
           # Convert groupId to path
           group_path=$(echo "$groupId" | tr '.' '/')
@@ -66,3 +60,7 @@ tasks:
           task maven_download LOCAL_DIR=${local_dir} LOCAL_FILE=${local_file} ARTIFACT_URL=${artifact_url}
 
           java -jar ${local_file} {{.OPTIONS}}
+        else
+          echo "Invalid Maven coordinates, '{{.COORDINATES}}' does not match with the expected format '<groupId>:<artifactId>[:<type>[:<classifier>]]:<version>'."
+          exit 1
+        fi
