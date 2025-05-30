@@ -2,6 +2,14 @@
 
 This project contains a Taskfile collection for different purposes to avoid redundancies in each project.
 
+!!! note
+
+    In order to use remote tasks, since it is still an [experimental feature](https://taskfile.dev/experiments/remote-taskfiles/), please remind to set the `TASK_X_REMOTE_TASKFILES` environment variable:
+
+```
+export TASK_X_REMOTE_TASKFILES=1
+```
+
 # Package management
 
 ## npm
