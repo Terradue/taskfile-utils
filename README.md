@@ -94,7 +94,8 @@ The `java.yaml` file contains tasks to execute a simple Java jar file, by hiding
 
 Download, if not present in the local M2 repo already, and executes an arbitrary artifact identified by the canonical GAV coordinates in the format of `<groupId>:<artifactId>[:<type>[:<classifier>]]:<version>`, with arbitrary parameters:
 
-- `GAV`: the artifact coordinates, i.e. `net.sourceforge.plantuml:plantuml-mit:1.2025.3`.
+- `GAV`: the artifact coordinates, i.e. `net.sourceforge.plantuml:plantuml-mit:1.2025.3`;
+- `OPTIONS`: the Java CLI options, i.e. `-svg -q -pipe`.
 
 Optional parameters below are also supported:
 
