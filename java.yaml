@@ -6,33 +6,16 @@ vars:
 
 tasks:
 
-  maven_download:
-    internal: true
-    preconditions:
-    - sh: command -v wget
-      msg: wget is not installed, please refer to https://www.gnu.org/software/wget/
-    status:
-    - test -f {{.LOCAL_FILE}}
-    cmds:
-      - |
-        echo "Downloading {{.ARTIFACT_URL}} to local Maven repository: {{.LOCAL_FILE}}"
-        mkdir -p "{{.LOCAL_DIR}}"
-        wget {{.ARTIFACT_URL}} -O {{.LOCAL_FILE}}
-        if [[ $? -ne 0 ]]; then
-          echo "Download failed. Please check the coordinates or repository."
-          exit 1
-        else
-          echo "Download complete: $local_file"
-        fi
-
   execute:
     desc: Simplifies the Java artifact download and execution from the Maven Central Repository via wget, rather than resolving it via Apache Maven.
     preconditions:
     - sh: command -v java
       msg: java is not installed, please refer to https://www.java.com/en/download/
+    - sh: command -v wget
+      msg: wget is not installed, please refer to https://www.gnu.org/software/wget/
     cmds:
       - |
-        COORDINATES="{{.COORDINATES}}"
+        COORDINATES="{{.GAV}}"
         echo "Input Coordinates: $COORDINATES"
         if [[ "$COORDINATES" =~ ^([^:\ ]+):([^:\ ]+)(:([^:\ ]*)(:([^:\ ]+))?)?:([^:\ ]+)$ ]]; then
           groupId="${BASH_REMATCH[1]}"
@@ -45,22 +28,32 @@ tasks:
 
           # Convert groupId to path
           group_path=$(echo "$groupId" | tr '.' '/')
-          base_url="${MAVEN_REPO}/${group_path}/${artifactId}/${version}"
+
           file_name="${artifactId}-${version}"
           if [[ -n "$classifier" ]]; then
             file_name="${file_name}-${classifier}"
           fi
           file_name="${file_name}.${type}"
-          artifact_url="${base_url}/${file_name}"
 
           # Determine local Maven repository path
-          local_dir="${LOCAL_M2_REPO}/${group_path}/${artifactId}/${version}"
+          local_dir="{{.LOCAL_M2_REPO}}/${group_path}/${artifactId}/${version}"
           local_file="${local_dir}/${file_name}"
 
-          task maven_download LOCAL_DIR=${local_dir} LOCAL_FILE=${local_file} ARTIFACT_URL=${artifact_url}
+          if ! test -f ${local_file}; then
+            artifact_url="{{.MAVEN_REPO}}/${group_path}/${artifactId}/${version}/${file_name}"
+            echo "Artifact file ${local_file} does not exist, downloading from ${artifact_url}..."
+            mkdir -p "${local_dir}"
+            wget ${artifact_url} -O ${local_file}
+            if [[ $? -ne 0 ]]; then
+              echo "Download failed. Please check the GAV coordinates or the repository."
+              exit 1
+            else
+              echo "${local_file} download complete"
+            fi
+          fi
 
           java -jar ${local_file} {{.OPTIONS}}
         else
-          echo "Invalid Maven coordinates, '{{.COORDINATES}}' does not match with the expected format '<groupId>:<artifactId>[:<type>[:<classifier>]]:<version>'."
+          echo "Invalid Maven coordinates, '{{.GAV}}' does not match with the expected format '<groupId>:<artifactId>[:<type>[:<classifier>]]:<version>'."
           exit 1
         fi

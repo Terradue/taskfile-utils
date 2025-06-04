@@ -86,6 +86,21 @@ Given an input OpenAPI YAML document, generates [Pydantic v2](https://pydantic.d
 - `API`: the reference to the AsyncAPI document, typically a YAML document;
 - `OUTPUT`: the reference to the directory where the AsyncAPI Generator produces the output file(s).
 
+## Java
+
+The `java.yaml` file contains tasks to execute a simple Java jar file, by hiding the artifact download from the [Maven Central Repository](https://central.sonatype.com/):
+
+### execute
+
+Download, if not present in the local M2 repo already, and executes an arbitrary artifact identified by the canonical GAV coordinates in the format of `<groupId>:<artifactId>[:<type>[:<classifier>]]:<version>`, with arbitrary parameters:
+
+- `GAV`: the artifact coordinates, i.e. `net.sourceforge.plantuml:plantuml-mit:1.2025.3`.
+
+Optional parameters below are also supported:
+
+- `MAVEN_REPO`: the Maven Central Repository URL, `https://repo1.maven.org/maven2` by default;
+- `LOCAL_M2_REPO`: the local File System path where artifacts will be stored, `$HOME/.m2/repository` by default.
+
 ## JSON
 
 The `json.yaml` file contains tasks to generate contents, given a [JSON Schema](https://json-schema.org/) document:
