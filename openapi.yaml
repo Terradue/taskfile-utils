@@ -6,6 +6,15 @@ includes:
 
 tasks:
 
+  bundle:
+    desc: Given an input OpenAPI YAML document, bundles the API description.
+    deps:
+    - task: npm_utils:conditional_install
+      vars:
+        PACKAGE: '@redocly/cli'
+    cmds:
+    - redocly bundle {{.API}} --output={{.OUTPUT}} --remove-unused-components --lint-config
+
   generate_docs:
     desc: Given an input OpenAPI YAML document, creates Redocly human-readable documentation.
     deps:
