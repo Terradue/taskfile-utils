@@ -1,22 +1,21 @@
 version: 3
 
 vars:
-  MAVEN_REPO: "https://repo1.maven.org/maven2"
   LOCAL_M2_REPO: "$HOME/.m2/repository"
 
 tasks:
 
   execute:
-    desc: Simplifies the Java artifact download and execution from the Maven Central Repository via wget, rather than resolving it via Apache Maven.
+    desc: Simplifies the Java artifact download and execution from the Maven Central Repository, resolving it via Apache Maven.
     preconditions:
     - sh: command -v java
-      msg: java is not installed, please refer to https://www.java.com/en/download/
-    - sh: command -v wget
-      msg: wget is not installed, please refer to https://www.gnu.org/software/wget/
+      msg: Java is not installed, please refer to https://www.java.com/en/download/
+    - sh: command -v mvn
+      msg: Apache Maven is not installed, please refer to https://maven.apache.org/install.html
     cmds:
-      - |
-        COORDINATES="{{.GAV}}"
-        echo "Input Coordinates: $COORDINATES"
+    - mvn dependency:get -Dartifact={{.GAV}}
+    - |
+        COORDINATES="{{artifact}}"
         if [[ "$COORDINATES" =~ ^([^:\ ]+):([^:\ ]+)(:([^:\ ]*)(:([^:\ ]+))?)?:([^:\ ]+)$ ]]; then
           groupId="${BASH_REMATCH[1]}"
           artifactId="${BASH_REMATCH[2]}"
@@ -38,19 +37,6 @@ tasks:
           # Determine local Maven repository path
           local_dir="{{.LOCAL_M2_REPO}}/${group_path}/${artifactId}/${version}"
           local_file="${local_dir}/${file_name}"
-
-          if ! test -f ${local_file}; then
-            artifact_url="{{.MAVEN_REPO}}/${group_path}/${artifactId}/${version}/${file_name}"
-            echo "Artifact file ${local_file} does not exist, downloading from ${artifact_url}..."
-            mkdir -p "${local_dir}"
-            wget ${artifact_url} -O ${local_file}
-            if [[ $? -ne 0 ]]; then
-              echo "Download failed. Please check the GAV coordinates or the repository."
-              exit 1
-            else
-              echo "${local_file} download complete"
-            fi
-          fi
 
           java -jar ${local_file} {{.OPTIONS}}
         else
