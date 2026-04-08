@@ -1,34 +1,51 @@
-version: 3
+# Copyright 2025 Terradue
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-includes:
-  pip_installer: https://raw.githubusercontent.com/Terradue/taskfile-utils/refs/heads/main/pip.yaml
+version: 3
 
 tasks:
 
   create_models:
     desc: Given a JSON Schema, generates the related Pydantic v2 models (with field aliases).
-    deps:
-    - task: pip_installer:conditional_install
-      vars:
-        PACKAGE: datamodel-code-generator
     vars:
       BASE_CLASS: pydantic.BaseModel
+      ADDITIONAL_IMPORTS: pydantic.BaseModel
     cmds:
     - |
+      uv run \
+      --no-cache \
+      --with datamodel-code-generator \
       datamodel-codegen  --input {{.SCHEMA}} \
                          --input-file-type jsonschema \
                          --output-model-type pydantic_v2.BaseModel \
                          --base-class {{.BASE_CLASS}} \
-                         --additional-imports "pydantic.BaseModel" \
+                         --additional-imports "{{.ADDITIONAL_IMPORTS}}" \
+                         --field-constraints \
+                         --use-schema-description \
+                         --collapse-root-models \
+                         --capitalise-enum-members \
+                         --use-one-literal-as-default \
                          --snake-case-field \
+                         --use-default \
                          --output {{.OUTPUT}}
 
   check_instance:
     desc: Executes a strict JSON Schema check of an instance file against an input schema.
     ignore_error: true
-    deps:
-    - task: pip_installer:conditional_install
-      vars:
-        PACKAGE: check-jsonschema
     cmds:
-    - check-jsonschema --schemafile {{.SCHEMA}} {{.INSTANCE}}
+    - |
+      uv run \
+      --no-cache \
+      --with check-jsonschema \
+      check-jsonschema --schemafile {{.SCHEMA}} {{.INSTANCE}}
