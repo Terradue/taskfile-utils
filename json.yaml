@@ -19,8 +19,8 @@ tasks:
   create_models:
     desc: Given a JSON Schema, generates the related Pydantic v2 models (with field aliases).
     vars:
-      BASE_CLASS: pydantic.BaseModel
-      ADDITIONAL_IMPORTS: pydantic.BaseModel
+      BASE_CLASS: '{{default "pydantic.BaseModel" .BASE_CLASS}}'
+      ADDITIONAL_IMPORTS: '{{default "pydantic.BaseModel" .ADDITIONAL_IMPORTS}}'
     cmds:
     - |
       uv run \
@@ -44,8 +44,8 @@ tasks:
   generate_jsonschema_doc:
     desc: Generates the JSON Schema related Markdown documentation pages.
     vars:
-      SOURCE: './schemas'
-      TARGET: './docs/schemas'
+      SOURCE: '{{default "./schemas" .SOURCE}}'
+      TARGET: '{{default "./docs/schemas" TARGET}}'
     cmds:
     - |
       uv run \
