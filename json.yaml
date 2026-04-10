@@ -26,19 +26,32 @@ tasks:
       uv run \
       --no-cache \
       --with datamodel-code-generator \
-      datamodel-codegen  --input {{.SCHEMA}} \
-                         --input-file-type jsonschema \
-                         --output-model-type pydantic_v2.BaseModel \
-                         --base-class {{.BASE_CLASS}} \
-                         --additional-imports "{{.ADDITIONAL_IMPORTS}}" \
-                         --field-constraints \
-                         --use-schema-description \
-                         --collapse-root-models \
-                         --capitalise-enum-members \
-                         --use-one-literal-as-default \
-                         --snake-case-field \
-                         --use-default \
-                         --output {{.OUTPUT}}
+      datamodel-codegen --input {{.SCHEMA}} \
+                        --input-file-type jsonschema \
+                        --output-model-type pydantic_v2.BaseModel \
+                        --base-class {{.BASE_CLASS}} \
+                        --additional-imports "{{.ADDITIONAL_IMPORTS}}" \
+                        --field-constraints \
+                        --use-schema-description \
+                        --collapse-root-models \
+                        --capitalise-enum-members \
+                        --use-one-literal-as-default \
+                        --snake-case-field \
+                        --use-default \
+                        {{if .CUSTOM_TEMPLATE_DIR}}--custom-template-dir {{.CUSTOM_TEMPLATE_DIR}} \{{else}}\{{end}}
+                        --output {{.OUTPUT}}
+
+  generate_jsonschema_doc:
+    desc: Generates the JSON Schema related Markdown documentation pages.
+    vars:
+      SOURCE: './schemas'
+      TARGET: './docs/schemas'
+    cmds:
+    - |
+      uv run \
+      --no-cache \
+      --with json-schema-for-humans \
+      generate-schema-doc --config template_name=md {{.SOURCE}} {{.TARGET}}
 
   check_instance:
     desc: Executes a strict JSON Schema check of an instance file against an input schema.
