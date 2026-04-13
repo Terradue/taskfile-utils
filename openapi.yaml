@@ -16,7 +16,6 @@ version: 3
 
 includes:
   npm_utils: https://raw.githubusercontent.com/Terradue/taskfile-utils/refs/heads/main/npm.yaml
-  pip_utils: https://raw.githubusercontent.com/Terradue/taskfile-utils/refs/heads/main/pip.yaml
 
 tasks:
 
@@ -40,9 +39,12 @@ tasks:
 
   generate_skeleton:
     desc: Given an input OpenAPI YAML document, creates FastAPI server skeleton with Pydantic v2 models.
-    deps:
-    - task: pip_utils:conditional_install
-      vars:
-        PACKAGE: fastapi-code-generator
     cmds:
-    - fastapi-codegen --input {{.API}} --output {{.OUTPUT}} --output-model-type pydantic_v2.BaseModel
+    - |
+      uv run \
+      --no-cache \
+      --with fastapi-code-generator \
+      fastapi-codegen \
+      --input {{.API}} \
+      --output {{.OUTPUT}} \
+      --output-model-type pydantic_v2.BaseModel

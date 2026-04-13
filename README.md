@@ -34,29 +34,6 @@ tasks:
     - redocly build-docs {{.API}} --output={{.OUTPUT}}
 ```
 
-## pip
-
-The `pip.yaml` file contains a single task that installs a package, if not present already, via the `pip` CLI, i.e.:
-
-```yaml
-version: 3
-
-includes:
-  pip_utils: https://raw.githubusercontent.com/Terradue/taskfile-utils/refs/heads/main/pip.yaml
-
-tasks:
-
-  generate_skeleton:
-    desc: Given an input OpenAPI YAML document, creates FastAPI server skeleton with Pydantic v2 models.
-    deps:
-    - task: pip_utils:conditional_install
-      vars:
-        PACKAGE: fastapi-code-generator
-    cmds:
-    - fastapi-codegen --input {{.API}} --output {{.OUTPUT}} --output-model-type pydantic_v2.BaseModel
-
-```
-
 # Command execution
 
 ## AsyncAPI
@@ -85,22 +62,6 @@ Given an input OpenAPI YAML document, generates [Pydantic v2](https://pydantic.d
 
 - `API`: the reference to the AsyncAPI document, typically a YAML document;
 - `OUTPUT`: the reference to the directory where the AsyncAPI Generator produces the output file(s).
-
-## Java
-
-The `java.yaml` file contains tasks to execute a simple Java jar file, by hiding the artifact download from the [Maven Central Repository](https://central.sonatype.com/):
-
-### execute
-
-Download, if not present in the local M2 repo already, and executes an arbitrary artifact identified by the canonical GAV coordinates in the format of `<groupId>:<artifactId>[:<type>[:<classifier>]]:<version>`, with arbitrary parameters:
-
-- `GAV`: the artifact coordinates, i.e. `net.sourceforge.plantuml:plantuml-mit:1.2025.3`;
-- `OPTIONS`: the Java CLI options, i.e. `-svg -q -pipe`.
-
-Optional parameters below are also supported:
-
-- `MAVEN_REPO`: the Maven Central Repository URL, `https://repo1.maven.org/maven2` by default;
-- `LOCAL_M2_REPO`: the local File System path where artifacts will be stored, `$HOME/.m2/repository` by default.
 
 ## JSON
 
