@@ -41,9 +41,6 @@ tasks:
 
   generate_jsonschema_doc:
     desc: Generates the JSON Schema related Markdown documentation pages.
-    vars:
-      SOURCE: '{{default "./schemas" .SOURCE}}'
-      TARGET: '{{default "./docs/schemas" TARGET}}'
     cmds:
     - |
       uv run \
