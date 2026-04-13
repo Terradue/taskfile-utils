@@ -10,30 +10,6 @@ This project contains a Taskfile collection for different purposes to avoid redu
 export TASK_X_REMOTE_TASKFILES=1
 ```
 
-# Package management
-
-## npm
-
-The `npm.yaml` file contains a single task that installs a package, if not present already, via the `npm` CLI, i.e.:
-
-```yaml
-version: 3
-
-includes:
-  npm_utils: https://raw.githubusercontent.com/Terradue/taskfile-utils/refs/heads/main/npm.yaml
-
-tasks:
-
-  generate_docs:
-    desc: Given an input OpenAPI YAML document, creates Redocly human-readable documentation.
-    deps:
-    - task: npm_utils:conditional_install
-      vars:
-        PACKAGE: '@redocly/cli'
-    cmds:
-    - redocly build-docs {{.API}} --output={{.OUTPUT}}
-```
-
 # Command execution
 
 ## AsyncAPI
