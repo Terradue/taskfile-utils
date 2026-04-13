@@ -22,7 +22,7 @@ tasks:
     - |
       uv run \
       --no-cache \
-      --with datamodel-code-generator[ruff] \
+      --with datamodel-code-generator \
       datamodel-codegen --input {{.SCHEMA}} \
                         --input-file-type jsonschema \
                         --output-model-type pydantic_v2.BaseModel \
@@ -35,6 +35,7 @@ tasks:
                         --use-one-literal-as-default \
                         --snake-case-field \
                         --use-default \
+                        --formatters ruff-check ruff-format \
                         {{if .CUSTOM_TEMPLATE_DIR}}--custom-template-dir {{.CUSTOM_TEMPLATE_DIR}} \{{else}}\{{end}}
                         --output {{.OUTPUT}}
 
