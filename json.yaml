@@ -18,9 +18,6 @@ tasks:
 
   create_models:
     desc: Given a JSON Schema, generates the related Pydantic v2 models (with field aliases).
-    vars:
-      BASE_CLASS: '{{default "pydantic.BaseModel" .BASE_CLASS}}'
-      ADDITIONAL_IMPORTS: '{{default "pydantic.BaseModel" .ADDITIONAL_IMPORTS}}'
     cmds:
     - |
       uv run \
@@ -29,8 +26,8 @@ tasks:
       datamodel-codegen --input {{.SCHEMA}} \
                         --input-file-type jsonschema \
                         --output-model-type pydantic_v2.BaseModel \
-                        --base-class {{.BASE_CLASS}} \
-                        --additional-imports "{{.ADDITIONAL_IMPORTS}}" \
+                        --base-class {{if .BASE_CLASS}}{{.BASE_CLASS}}{{else}}pydantic.BaseModel{{end}} \
+                        --additional-imports {{if .ADDITIONAL_IMPORTS}}{{.ADDITIONAL_IMPORTS}}{{else}}pydantic.BaseModel{{end}} \
                         --field-constraints \
                         --use-schema-description \
                         --collapse-root-models \
