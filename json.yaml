@@ -18,6 +18,9 @@ tasks:
 
   create_models:
     desc: Given a JSON Schema, generates the related Pydantic v2 models (with field aliases).
+    preconditions:
+    - sh: command -v uv >/dev/null 2>&1
+      msg: "Missing uv, see https://docs.astral.sh/uv/"
     cmds:
     - |
       uv run \
@@ -41,6 +44,9 @@ tasks:
 
   generate_schema_doc:
     desc: Generates the JSON Schema related Markdown documentation pages.
+    preconditions:
+    - sh: command -v uv >/dev/null 2>&1
+      msg: "Missing uv, see https://docs.astral.sh/uv/"
     cmds:
     - |
       uv run \
@@ -50,6 +56,9 @@ tasks:
 
   check_instance:
     desc: Executes a strict JSON Schema check of an instance file against an input schema.
+    preconditions:
+    - sh: command -v uv >/dev/null 2>&1
+      msg: "Missing uv, see https://docs.astral.sh/uv/"
     ignore_error: true
     cmds:
     - |

@@ -18,6 +18,9 @@ tasks:
 
   invoke_generator:
     desc: Allow invoke the 'asyncapi generate' command with arbitrary parameters.
+    preconditions:
+    - sh: command -v npx >/dev/null 2>&1
+      msg: "Missing npx, see https://docs.npmjs.com/cli/v8/commands/npx"
     cmds:
     - |
       npx \
@@ -36,6 +39,9 @@ tasks:
 
   generate_models:
     desc: Given an input OpenAPI YAML document, creates Pydantic v2 models.
+    preconditions:
+    - sh: command -v uv >/dev/null 2>&1
+      msg: "Missing uv, see https://docs.astral.sh/uv/"
     cmds:
     - |
       uv run \
