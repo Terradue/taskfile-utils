@@ -24,7 +24,7 @@ tasks:
     cmds:
     - |
       npx \
-      @redocly/cli \
+      --package=@redocly/cli \
       redocly \
       bundle \
       {{.API}} \
@@ -40,7 +40,7 @@ tasks:
     cmds:
     - |
       npx \
-      @redocly/cli \
+      --package=@redocly/cli \
       redocly \
       build-docs \
       {{.API}} \
