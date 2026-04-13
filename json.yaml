@@ -39,7 +39,7 @@ tasks:
                         {{if .CUSTOM_TEMPLATE_DIR}}--custom-template-dir {{.CUSTOM_TEMPLATE_DIR}} \{{else}}\{{end}}
                         --output {{.OUTPUT}}
 
-  generate_jsonschema_doc:
+  generate_schema_doc:
     desc: Generates the JSON Schema related Markdown documentation pages.
     cmds:
     - |
