@@ -24,6 +24,7 @@ tasks:
     cmds:
     - |
       npx \
+      --yes \
       --package=@asyncapi/cli \
       --package=@asyncapi/generator-react-sdk \
       asyncapi generate fromTemplate {{.API}} {{.TEMPLATE}} -o {{.OUTPUT}} {{.AUX_PARAMETER}} --use-new-generator --force-write
