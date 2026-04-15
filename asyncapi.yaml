@@ -29,13 +29,23 @@ tasks:
       --package=@asyncapi/generator-react-sdk \
       asyncapi generate fromTemplate {{.API}} {{.TEMPLATE}} -o {{.OUTPUT}} {{.AUX_PARAMETER}} --use-new-generator --force-write
 
+  bundle:
+    desc: Given an input OpenAPI YAML document, creates a bundleded version.
+    cmds:
+    -  |
+      npx \
+      --yes \
+      --package=@asyncapi/cli \
+      --package=@asyncapi/generator-react-sdk \
+      asyncapi bundle {{.API}} --output {{.OUTPUT}}
+
   generate_docs:
     desc: Given an input OpenAPI YAML document, creates human-readable documentation.
     cmds:
     - task: invoke_generator
       vars:
         API: '{{.API}}'
-        TEMPLATE: '@asyncapi/html-template@3.0.0'
+        TEMPLATE: '@asyncapi/html-template@3.5.6'
         OUTPUT: '{{.OUTPUT}}'
 
   generate_models:
