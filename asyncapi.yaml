@@ -30,7 +30,7 @@ tasks:
       asyncapi generate fromTemplate {{.API}} {{.TEMPLATE}} -o {{.OUTPUT}} {{.AUX_PARAMETER}} --use-new-generator --force-write
 
   bundle:
-    desc: Given an input OpenAPI YAML document, creates a bundleded version.
+    desc: Given an input AsyncAPI YAML document, creates a bundleded version.
     cmds:
     -  |
       npx \
@@ -40,7 +40,7 @@ tasks:
       asyncapi bundle {{.API}} --output {{.OUTPUT}}
 
   generate_docs:
-    desc: Given an input OpenAPI YAML document, creates human-readable documentation.
+    desc: Given an input AsyncAPI YAML document, creates human-readable documentation.
     cmds:
     - task: invoke_generator
       vars:
@@ -49,7 +49,7 @@ tasks:
         OUTPUT: '{{.OUTPUT}}'
 
   generate_models:
-    desc: Given an input OpenAPI YAML document, creates Pydantic v2 models.
+    desc: Given an input AsyncAPI YAML document, creates Pydantic v2 models.
     preconditions:
     - sh: command -v uv >/dev/null 2>&1
       msg: "Missing uv, see https://docs.astral.sh/uv/"
