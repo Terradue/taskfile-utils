@@ -66,3 +66,18 @@ tasks:
       --no-cache \
       --with check-jsonschema \
       check-jsonschema --schemafile {{.SCHEMA}} {{.INSTANCE}}
+
+  bundle:
+    desc: Bundles an input JSON Schema document.
+    preconditions:
+    - sh: command -v npx >/dev/null 2>&1
+      msg: "Missing npx, see https://docs.npmjs.com/cli/v8/commands/npx"
+    cmds:
+    - |
+      npx \
+      --yes \
+      --package=@sourcemeta/jsonschema \
+      jsonschema \
+      bundle \
+      {{.SOURCE}} \
+      --http > {{.OUTPUT}}
