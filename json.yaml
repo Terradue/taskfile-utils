@@ -79,5 +79,5 @@ tasks:
       --package=@sourcemeta/jsonschema \
       jsonschema \
       bundle \
-      {{.SOURCE}} \
+      {{.SCHEMA}} \
       --http > {{.OUTPUT}}
