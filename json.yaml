@@ -25,23 +25,32 @@ tasks:
     - |
       uv run \
       --no-cache \
-      --with "datamodel-code-generator[http]" \
-      datamodel-codegen --input {{.SCHEMA}} \
-                        --input-file-type jsonschema \
-                        --output-model-type pydantic_v2.BaseModel \
-                        --base-class {{if .BASE_CLASS}}{{.BASE_CLASS}}{{else}}pydantic.BaseModel{{end}} \
+      --with "datamodel-code-generator[http{{if eq .DEBUG "true"}},debug{{end}}]" \
+      datamodel-codegen \
                         --additional-imports {{if .ADDITIONAL_IMPORTS}}{{.ADDITIONAL_IMPORTS}}{{else}}pydantic.BaseModel{{end}} \
-                        --field-constraints \
-                        --use-schema-description \
-                        --collapse-root-models \
+                        --allow-extra-fields \
+                        --allow-population-by-field-name \
+                        --allow-remote-refs \
+                        --base-class {{if .BASE_CLASS}}{{.BASE_CLASS}}{{else}}pydantic.BaseModel{{end}} \
                         --capitalise-enum-members \
-                        --use-one-literal-as-default \
+                        --collapse-root-models \
+                        {{if .CUSTOM_TEMPLATE_DIR}}--custom-template-dir {{.CUSTOM_TEMPLATE_DIR}} \{{else}}\{{end}}
+                        {{if eq .DEBUG "true"}}--debug \{{else}}\{{end}}
+                        --field-constraints \
+                        --formatters ruff-check ruff-format \
+                        {{if regexMatch "^[[:alpha:]][[:alnum:]+.-]*://" .SCHEMA}}--url {{.SCHEMA}}{{else}}--input {{.SCHEMA}}{{end}} \
+                        --input-file-type jsonschema \
+                        --output {{.OUTPUT}} \
+                        --output-model-type pydantic_v2.BaseModel \
+                        --reuse-model \
                         --snake-case-field \
                         --use-default \
-                        --allow-remote-refs \
-                        --formatters ruff-check ruff-format \
-                        {{if .CUSTOM_TEMPLATE_DIR}}--custom-template-dir {{.CUSTOM_TEMPLATE_DIR}} \{{else}}\{{end}}
-                        --output {{.OUTPUT}}
+                        --use-double-quotes \
+                        --use-field-description \
+                        --use-one-literal-as-default \
+                        --use-schema-description \
+                        --use-schema-description \
+                        --use-standard-collections
 
   generate_schema_doc:
     desc: Generates the JSON Schema related Markdown documentation pages.

@@ -53,6 +53,7 @@ Given a JSON Schema, generates the related [Pydantic v2](https://pydantic.dev/ar
 Optional parameters below are also supported:
 
 - `BASE_CLASS`: the [Pydantic v2](https://pydantic.dev/articles/pydantic-v2-final) base class, `pydantic.BaseModel` by default.
+- `DEBUG`: set to `true` to enable `datamodel-codegen --debug` output during model generation.
 
 ### check_instance
 
