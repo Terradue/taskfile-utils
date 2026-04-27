@@ -62,3 +62,19 @@ tasks:
       --input {{.API}} \
       --output {{.OUTPUT}} \
       --output-model-type pydantic_v2.BaseModel
+
+  generate_client:
+    desc: Given an input OpenAPI YAML document, creates an httpx based client implementation with Pydantic v2 models.
+    preconditions:
+    - sh: command -v uv >/dev/null 2>&1
+      msg: "Missing uv, see https://docs.astral.sh/uv/"
+    cmds:
+    - |
+      uv run \
+      --no-cache \
+      --with openapi-python-client \
+      openapi-python-client generate \
+      --meta none \
+      --path {{.API}} \
+      --output-path {{.OUTPUT}} \
+      --overwrite
