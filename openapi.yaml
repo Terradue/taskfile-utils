@@ -57,6 +57,7 @@ tasks:
     - |
       uv run \
       --no-cache \
+      --no-project \
       --with fastapi-code-generator \
       fastapi-codegen \
       --input {{.API}} \
@@ -72,6 +73,7 @@ tasks:
     - |
       uv run \
       --no-cache \
+      --no-project \
       --with openapi-python-client \
       openapi-python-client generate \
       --meta none \
