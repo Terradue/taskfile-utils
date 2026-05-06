@@ -75,7 +75,7 @@ tasks:
       --no-cache \
       --no-project \
       --with openapi-python-client \
-      --with datamodel-code-generator[ruff] \
+      --with 'datamodel-code-generator[ruff]' \
       openapi-python-client generate \
       --meta none \
       --path {{.API}} \
