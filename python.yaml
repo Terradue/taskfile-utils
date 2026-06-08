@@ -1,0 +1,53 @@
+# Copyright 2025 Terradue
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: 3
+
+tasks:
+
+  generate_puml_diagrams:
+    desc: |
+      Generates [PlantUML](https://plantuml.com/) diagrams from a Python source project.
+    preconditions:
+    - sh: command -v uv >/dev/null 2>&1
+      msg: "Missing uv, see https://docs.astral.sh/uv/"
+    cmds:
+    - |
+      find {{.SOURCE_ROOTS}} -type d -exec sh -c '
+        for d do                                                                                                                                            if find "$d" -maxdepth 1 -type f -name "*.py" | grep -q .; then
+            if [ ! -e "$d/__init__.py" ]; then
+              touch "$d/__init__.py"
+              echo "$d/__init__.py"
+            fi
+          fi
+        done
+      ' sh {} + > /tmp/pyreverse-added-init-files.txt
+    - mkdir -p ./docs/diagrams/src/c4/class/
+    - |
+      uv run \
+      --no-cache \
+      --no-project \
+      --with pylint \
+      -- \
+      pyreverse \
+      --filter-mode ALL \
+      --all-ancestors \
+      --all-associated \
+      --module-names y \
+      --output puml \
+      --source-roots {{.SOURCE_ROOTS}} \
+      --output-directory ./docs/diagrams/src/c4/class/ \
+      --verbose \
+      $(find {{.SOURCE_ROOTS}} -type f -name '*.py')
+    - xargs rm -f < /tmp/pyreverse-added-init-files.txt
