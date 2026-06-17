@@ -16,6 +16,20 @@ version: 3
 
 tasks:
 
+  swagger2openapi:
+    desc: Converts an old Swagger to modern OpenAPI.
+    preconditions:
+    - sh: command -v npx >/dev/null 2>&1
+      msg: "Missing npx, see https://docs.npmjs.com/cli/v8/commands/npx"
+    cmds:
+    - |
+      npx \
+      --yes \
+      --package=swagger2openapi \
+      swagger2openapi \
+      {{.API}} \
+      -o {{.OUTPUT}}
+
   bundle:
     desc: Given an input OpenAPI YAML document, bundles the API description.
     preconditions:
