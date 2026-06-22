@@ -73,28 +73,6 @@ tasks:
         sh: yq '.info.title | downcase | sub("[[:space:]]+", "-") + "-microservices"' {{.API}}
     cmds:
     - mkdir -p {{.OUTPUT}}/{{.OUTPUT_DIR}}
-    - |
-      uv run \
-      --no-cache \
-      --no-project \
-      --with 'datamodel-code-generator[ruff]' \
-      --with fastapi-code-generator \
-      fastapi-codegen \
-      --input {{.API}} \
-      --output {{.OUTPUT_DIR}} \
-      --output-model-type pydantic_v2.BaseModel
-
-  generate_client:
-    desc: Given an input OpenAPI YAML document, creates an httpx based client implementation with Pydantic v2 models.
-    preconditions:
-    - sh: command -v uv >/dev/null 2>&1
-      msg: "Missing uv, see https://docs.astral.sh/uv/"
-    vars:
-      OUTPUT: '{{.OUTPUT | default "."}}'
-      OUTPUT_DIR:
-        sh: yq '.info.title | downcase | sub("[[:space:]]+", "-") + "-microservices"' {{.API}}
-    cmds:
-    - mkdir -p {{.OUTPUT}}/{{.OUTPUT_DIR}}
     - cd {{.OUTPUT}}/{{.OUTPUT_DIR}} && uv run \
       --no-cache \
       --no-project \
@@ -106,10 +84,32 @@ tasks:
       uv run \
       --no-cache \
       --no-project \
+      --with 'datamodel-code-generator[ruff]' \
+      --with fastapi-code-generator \
+      fastapi-codegen \
+      --input {{.API}} \
+      --output {{.OUTPUT}}/{{.OUTPUT_DIR}}/src/$(echo "{{.OUTPUT_DIR}}" | sed 's/-/_/g') \
+      --output-model-type pydantic_v2.BaseModel
+
+  generate_client:
+    desc: Given an input OpenAPI YAML document, creates an httpx based client implementation with Pydantic v2 models.
+    preconditions:
+    - sh: command -v uv >/dev/null 2>&1
+      msg: "Missing uv, see https://docs.astral.sh/uv/"
+    vars:
+      OUTPUT: '{{.OUTPUT | default "."}}'
+      OUTPUT_DIR:
+        sh: yq '.info.title | downcase | sub("[[:space:]]+", "-") + "-client"' {{.API}}
+    cmds:
+    - mkdir -p {{.OUTPUT}}/{{.OUTPUT_DIR}}
+    - |
+      uv run \
+      --no-cache \
+      --no-project \
       --with openapi-python-client \
       --with 'datamodel-code-generator[ruff]' \
       openapi-python-client generate \
       --meta pdm \
       --path {{.API}} \
-      --output-path {{.OUTPUT}}/{{.OUTPUT_DIR}}/src \
+      --output-path {{.OUTPUT}}/{{.OUTPUT_DIR}} \
       --overwrite
