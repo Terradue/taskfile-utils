@@ -70,6 +70,7 @@ tasks:
     vars:
       OUTPUT: '{{.OUTPUT | default "."}}'
     cmds:
+    - mkdir -p {{.OUTPUT}}/$(yq '.info.title | downcase | sub("[[:space:]]+", "-") + "-microservices"' {{.API}})
     - |
       uv run \
       --no-cache \
@@ -78,7 +79,7 @@ tasks:
       --with fastapi-code-generator \
       fastapi-codegen \
       --input {{.API}} \
-      --output {{.OUTPUT}}/$(yq '.info.title | downcase | sub("[[:space:]]+", "-") + "-client"' {{.API}}) \
+      --output {{.OUTPUT}}/$(yq '.info.title | downcase | sub("[[:space:]]+", "-") + "-microservices"' {{.API}}) \
       --output-model-type pydantic_v2.BaseModel
 
   generate_client:
@@ -89,6 +90,7 @@ tasks:
     vars:
       OUTPUT: '{{.OUTPUT | default "."}}'
     cmds:
+    - mkdir -p {{.OUTPUT}}/$(yq '.info.title | downcase | sub("[[:space:]]+", "-") + "-client"' {{.API}})
     - |
       uv run \
       --no-cache \
@@ -98,5 +100,5 @@ tasks:
       openapi-python-client generate \
       --meta pdm \
       --path {{.API}} \
-      --output-path {{.OUTPUT}}/$(yq '.info.title | downcase | sub("[[:space:]]+", "-") + "-microservices"' {{.API}}) \
+      --output-path {{.OUTPUT}}/$(yq '.info.title | downcase | sub("[[:space:]]+", "-") + "-client"' {{.API}}) \
       --overwrite
