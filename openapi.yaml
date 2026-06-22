@@ -84,6 +84,15 @@ tasks:
       --input {{.API}} \
       --output {{.OUTPUT}}/{{.OUTPUT_DIR}}/src/$(echo "{{.OUTPUT_DIR}}" | sed 's/-/_/g') \
       --output-model-type pydantic_v2.BaseModel
+    - |
+      uv run \
+      --no-cache \
+      --no-project \
+      --with toml-cli \
+      toml set \
+      {{.OUTPUT}}/{{.OUTPUT_DIR}}/pyproject.toml \
+      project.description \
+      '"A FastAPI Microservices module to expose $(yq '.info.title' {{.API}})"'
 
   generate_client:
     desc: Given an input OpenAPI YAML document, creates an httpx based client implementation with Pydantic v2 models.
