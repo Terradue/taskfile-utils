@@ -81,6 +81,8 @@ tasks:
       msg: "Missing uv, see https://docs.astral.sh/uv/"
     vars:
       OUTPUT: '{{.OUTPUT | default "."}}'
+      PROJECT_TITLE:
+        sh: yq '.info.title' {{.API}}
       OUTPUT_DIR:
         sh: yq '.info.title | downcase | sub("[[:space:]]+", "-") + "-microservices"' {{.API}}
     cmds:
@@ -90,14 +92,12 @@ tasks:
       vars:
         TOML_DIR: '{{.OUTPUT}}/{{.OUTPUT_DIR}}'
         PROPERTY: 'project.description'
-        VALUE: |
-          ["fastapi", "uvicorn", "pydantic"]
+        VALUE: '"A FastAPI Microservices module to expose {{.PROJECT_TITLE}}"'
     - task: invoke_toml
       vars:
         TOML_DIR: '{{.OUTPUT}}/{{.OUTPUT_DIR}}'
         PROPERTY: 'project.dependencies'
-        VALUE: |
-          "A FastAPI Microservices module to expose $(yq '.info.title' {{.API}})"
+        VALUE: '["fastapi", "uvicorn", "pydantic"]'
     - |
       uv run \
       --no-cache \
