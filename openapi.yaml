@@ -92,7 +92,7 @@ tasks:
       --with openapi-python-client \
       --with 'datamodel-code-generator[ruff]' \
       openapi-python-client generate \
-      --meta hatch \
+      --meta pdm \
       --path {{.API}} \
       --output-path {{.OUTPUT}} \
       --overwrite
