@@ -101,7 +101,7 @@ tasks:
       --with hatch \
       hatch \
       new \
-      --init $(yq '.info.title) + " Microservices" {{.API}}
+      --init {{.OUTPUT_DIR}}
     - |
       uv run \
       --no-cache \
