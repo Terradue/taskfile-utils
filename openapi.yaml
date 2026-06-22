@@ -79,10 +79,8 @@ tasks:
       --no-cache \
       --no-project \
       --with toml-cli \
-      toml set \
-      {{.OUTPUT}}/{{.OUTPUT_DIR}}/pyproject.toml \
-      project.description \
-      '"A FastAPI Microservices module to expose $(yq '.info.title' {{.API}})"'
+      toml {{.OUTPUT}}/{{.OUTPUT_DIR}}/pyproject.toml \
+      set project.description '"A FastAPI Microservices module to expose $(yq '.info.title' {{.API}})"'
     - |
       uv run \
       --no-cache \
