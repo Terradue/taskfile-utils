@@ -72,7 +72,7 @@ tasks:
       --with toml-cli \
       toml set \
       --toml-path {{.TOML_DIR}}/pyproject.toml \
-      {{.PROPERTY}} '{{.VALUE}}'
+      {{.PROPERTY}} {{.VALUE}}
 
   generate_skeleton:
     desc: Given an input OpenAPI YAML document, creates FastAPI server skeleton with Pydantic v2 models.
@@ -97,7 +97,7 @@ tasks:
       vars:
         TOML_DIR: '{{.OUTPUT}}/{{.OUTPUT_DIR}}'
         PROPERTY: 'project.dependencies'
-        VALUE: '["fastapi", "uvicorn", "pydantic"]'
+        VALUE: "['fastapi', 'uvicorn', 'pydantic']"
     - |
       uv run \
       --no-cache \
