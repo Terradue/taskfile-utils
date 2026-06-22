@@ -67,6 +67,8 @@ tasks:
     preconditions:
     - sh: command -v uv >/dev/null 2>&1
       msg: "Missing uv, see https://docs.astral.sh/uv/"
+    vars:
+      OUTPUT: '{{.OUTPUT | default "."}}'
     cmds:
     - |
       uv run \
@@ -76,7 +78,7 @@ tasks:
       --with fastapi-code-generator \
       fastapi-codegen \
       --input {{.API}} \
-      --output {{.OUTPUT}} \
+      --output {{.OUTPUT}}/$(yq '.info.title | downcase | sub("[[:space:]]+", "-") + "-client"') \
       --output-model-type pydantic_v2.BaseModel
 
   generate_client:
@@ -84,6 +86,8 @@ tasks:
     preconditions:
     - sh: command -v uv >/dev/null 2>&1
       msg: "Missing uv, see https://docs.astral.sh/uv/"
+    vars:
+      OUTPUT: '{{.OUTPUT | default "."}}'
     cmds:
     - |
       uv run \
@@ -94,5 +98,5 @@ tasks:
       openapi-python-client generate \
       --meta pdm \
       --path {{.API}} \
-      --output-path {{.OUTPUT}} \
+      --output-path {{.OUTPUT}}/$(yq '.info.title | downcase | sub("[[:space:]]+", "-") + "-microservices"') \
       --overwrite
