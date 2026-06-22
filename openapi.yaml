@@ -97,7 +97,8 @@ tasks:
       vars:
         TOML_DIR: '{{.OUTPUT}}/{{.OUTPUT_DIR}}'
         PROPERTY: 'project.dependencies'
-        VALUE: "['fastapi', 'uvicorn', 'pydantic']"
+        VALUE: |
+          "['fastapi', 'uvicorn', 'pydantic']"
     - |
       uv run \
       --no-cache \
