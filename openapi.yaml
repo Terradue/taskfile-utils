@@ -62,6 +62,18 @@ tasks:
       {{.API}} \
       --output={{.OUTPUT}}
 
+  invoke_toml:
+    internal: true
+    cmds:
+    - |
+      uv run \
+      --no-cache \
+      --no-project \
+      --with toml-cli \
+      toml set\  
+      --toml-path {{.TOML_DIR}}/pyproject.toml \
+      {{.PROPERTY}} '{{.VALUE}}'
+
   generate_skeleton:
     desc: Given an input OpenAPI YAML document, creates FastAPI server skeleton with Pydantic v2 models.
     preconditions:
@@ -74,13 +86,18 @@ tasks:
     cmds:
     - mkdir -p {{.OUTPUT}}/{{.OUTPUT_DIR}}
     - cd {{.OUTPUT}}/{{.OUTPUT_DIR}} && uv run --no-cache --no-project --with hatch hatch new --init {{.OUTPUT_DIR}}
-    - |
-      uv run \
-      --no-cache \
-      --no-project \
-      --with toml-cli \
-      toml {{.OUTPUT}}/{{.OUTPUT_DIR}}/pyproject.toml \
-      set project.description '"A FastAPI Microservices module to expose $(yq '.info.title' {{.API}})"'
+    - task: invoke_toml
+      vars:
+        TOML_DIR: '{{.OUTPUT}}/{{.OUTPUT_DIR}}'
+        PROPERTY: 'project.description'
+        VALUE: |
+          ["fastapi", "uvicorn", "pydantic"]
+    - task: invoke_toml
+      vars:
+        TOML_DIR: '{{.OUTPUT}}/{{.OUTPUT_DIR}}'
+        PROPERTY: 'project.dependencies'
+        VALUE: |
+          "A FastAPI Microservices module to expose $(yq '.info.title' {{.API}})"
     - |
       uv run \
       --no-cache \
