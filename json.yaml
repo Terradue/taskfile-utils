@@ -67,7 +67,7 @@ tasks:
       --no-cache \
       --no-project \
       --with json-schema-for-humans \
-      generate-schema-doc --config template_name=md {{.SOURCE}} {{.TARGET}}
+      generate-schema-doc --config template_name=md {{.SCHEMA}} {{.TARGET}}
 
   check_instance:
     desc: Executes a strict JSON Schema check of an instance file against an input schema.
