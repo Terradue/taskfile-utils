@@ -35,6 +35,8 @@ tasks:
     preconditions:
     - sh: command -v npx >/dev/null 2>&1
       msg: "Missing npx, see https://docs.npmjs.com/cli/v8/commands/npx"
+    vars:
+      REMOVE_UNUSED_COMPONENTS: '{{.REMOVE_UNUSED_COMPONENTS | default "true"}}'
     cmds:
     - |
       npx \
@@ -44,7 +46,7 @@ tasks:
       bundle \
       {{.API}} \
       --output={{.OUTPUT}} \
-      --remove-unused-components \
+      {{if eq .REMOVE_UNUSED_COMPONENTS "true"}}--remove-unused-components \{{else}}\{{end}}
       --lint-config
 
   generate_docs:
