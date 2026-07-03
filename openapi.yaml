@@ -180,6 +180,10 @@ tasks:
         sh: |
           yq -r '.info.title // ""' "{{.API}}"
 
+      OPENAPI_VERSION:
+        sh: |
+          yq -r '.info.version // ""' "{{.API}}"
+
       PROJECT_NAME:
         sh: |
           TITLE="$(yq -r '.info.title // "openapi"' "{{.API}}")"
@@ -240,6 +244,7 @@ tasks:
           API: "{{.API_ABS}}"
           OUTPUT: "{{.OUTPUT}}"
           PROJECT_NAME: "{{.PROJECT_NAME}}"
+          OPENAPI_VERSION: "{{.OPENAPI_VERSION}}"
           EXPORT_NAME: "{{.EXPORT_NAME}}"
           HOOKS: "{{.HOOKS}}"
           TAGS: "{{.TAGS}}"
@@ -275,11 +280,11 @@ tasks:
         cat > "{{.OUTPUT}}/package.json" <<'EOF'
         {
           "name": "{{.PROJECT_NAME}}",
-          "version": "0.1.0",
+          "version": "{{.OPENAPI_VERSION}}",
           "private": true,
           "type": "module",
           "scripts": {
-            "generate": "rtk-query-codegen-openapi openapi-config.ts",
+            "generate": "npx @rtk-query/codegen-openapi openapi-config.ts",
             "typecheck": "tsc --noEmit",
             "build": "tsc -p tsconfig.json"
           },
