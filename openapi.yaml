@@ -284,7 +284,7 @@ tasks:
           "private": true,
           "type": "module",
           "scripts": {
-            "generate": "npx @rtk-query/codegen-openapi openapi-config.ts",
+            "generate": "rtk-query-codegen-openapi openapi-config.ts",
             "typecheck": "tsc --noEmit",
             "build": "tsc -p tsconfig.json"
           },
@@ -296,6 +296,7 @@ tasks:
           "devDependencies": {
             "@rtk-query/codegen-openapi": "latest",
             "@types/node": "latest",
+            "ts-node": "latest",
             "typescript": "latest"
           }
         }
