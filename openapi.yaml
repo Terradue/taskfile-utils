@@ -284,7 +284,7 @@ tasks:
           "private": true,
           "type": "module",
           "scripts": {
-            "generate": "rtk-query-codegen-openapi openapi-config.ts",
+            "generate": "rtk-query-codegen-openapi openapi-config.cjs",
             "typecheck": "tsc --noEmit",
             "build": "tsc -p tsconfig.json"
           },
@@ -296,7 +296,6 @@ tasks:
           "devDependencies": {
             "@rtk-query/codegen-openapi": "latest",
             "@types/node": "latest",
-            "ts-node": "latest",
             "typescript": "latest"
           }
         }
@@ -322,7 +321,7 @@ tasks:
           },
           "include": [
             "src/**/*.ts",
-            "openapi-config.ts"
+            "openapi-config.cjs"
           ]
         }
         EOF
@@ -352,11 +351,10 @@ tasks:
         EOF
 
       - |
-        cat > "{{.OUTPUT}}/openapi-config.ts" <<'EOF'
-        import type { ConfigFile } from '@rtk-query/codegen-openapi'
-
-        const config: ConfigFile = {
-          schemaFile: '{{.API}}',
+        cat > "{{.TARGET}}/openapi-config.cjs" <<'EOF'
+        /** @type {import('@rtk-query/codegen-openapi').ConfigFile} */
+        const config = {
+          schemaFile: '{{.SCHEMA}}',
           apiFile: './src/store/emptyApi.ts',
           apiImport: 'emptySplitApi',
           outputFile: './src/generated/api.ts',
@@ -365,7 +363,7 @@ tasks:
           tag: {{.TAGS}},
         }
 
-        export default config
+        module.exports = config
         EOF
 
       - |
