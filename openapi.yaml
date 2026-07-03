@@ -136,3 +136,270 @@ tasks:
       --path {{.API}} \
       --output-path {{.OUTPUT}}/{{.OUTPUT_DIR}} \
       --overwrite
+
+  rtk-query-project:
+    desc: Create a NodeJS/TypeScript RTK Query project from an OpenAPI schema
+    summary: |
+      Usage:
+        task rtk-query-project SCHEMA=./openapi.yaml OUTPUT=./generated/client
+
+      Required vars:
+        SCHEMA   Path to the OpenAPI YAML/JSON schema
+        OUTPUT   Output directory for the generated NodeJS project
+
+      Derived from OpenAPI info.title:
+        package.json name: <info.title-kebab-case>-rtk-client
+        RTK exportName:   <info.title-camel-case>Api
+
+      Optional vars:
+        HOOKS=true
+        TAGS=true
+    requires:
+      vars:
+        - SCHEMA
+    preconditions:
+      - sh: test -f "{{.SCHEMA}}"
+        msg: "SCHEMA must point to an existing OpenAPI YAML/JSON file"
+      - sh: command -v node >/dev/null 2>&1
+        msg: "node is required"
+      - sh: command -v npm >/dev/null 2>&1
+        msg: "npm is required"
+      - sh: command -v yq >/dev/null 2>&1
+        msg: "yq is required to read info.title from the OpenAPI schema"
+    vars:
+      OUTPUT: '{{.OUTPUT | default "."}}'
+      PACKAGE_MANAGER: npm
+      HOOKS: true
+      TAGS: true
+
+      SCHEMA_ABS:
+        sh: |
+          cd "$(dirname "{{.SCHEMA}}")"
+          printf '%s/%s\n' "$(pwd)" "$(basename "{{.SCHEMA}}")"
+
+      OPENAPI_TITLE:
+        sh: |
+          yq -r '.info.title // ""' "{{.SCHEMA}}"
+
+      PROJECT_NAME:
+        sh: |
+          TITLE="$(yq -r '.info.title // "openapi"' "{{.SCHEMA}}")"
+          node - "$TITLE" <<'NODE'
+          const title = process.argv[2] || 'openapi'
+
+          const words = title
+            .normalize('NFKD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^A-Za-z0-9]+/g, ' ')
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean)
+
+          const slug = (words.length ? words : ['openapi'])
+            .map((word) => word.toLowerCase())
+            .join('-')
+
+          console.log(`${slug}-rtk-client`)
+          NODE
+
+      EXPORT_NAME:
+        sh: |
+          TITLE="$(yq -r '.info.title // "openapi"' "{{.SCHEMA}}")"
+          node - "$TITLE" <<'NODE'
+          const title = process.argv[2] || 'openapi'
+
+          const words = title
+            .normalize('NFKD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^A-Za-z0-9]+/g, ' ')
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean)
+
+          const parts = words.length ? words : ['openapi']
+
+          let name = parts
+            .map((word, index) => {
+              const lower = word.toLowerCase()
+              if (index === 0) return lower
+              return lower.charAt(0).toUpperCase() + lower.slice(1)
+            })
+            .join('')
+
+          if (!/^[A-Za-z_$]/.test(name)) {
+            name = `api${name.charAt(0).toUpperCase()}${name.slice(1)}`
+          }
+
+          console.log(`${name}Api`)
+          NODE
+
+    cmds:
+      - task: rtk-query-project:init
+        vars:
+          SCHEMA: "{{.SCHEMA_ABS}}"
+          OUTPUT: "{{.OUTPUT}}"
+          PROJECT_NAME: "{{.PROJECT_NAME}}"
+          EXPORT_NAME: "{{.EXPORT_NAME}}"
+          HOOKS: "{{.HOOKS}}"
+          TAGS: "{{.TAGS}}"
+
+      - task: rtk-query-project:install
+        vars:
+          OUTPUT: "{{.OUTPUT}}"
+
+      - task: rtk-query-project:generate
+        vars:
+          OUTPUT: "{{.OUTPUT}}"
+
+      - task: rtk-query-project:check
+        vars:
+          OUTPUT: "{{.OUTPUT}}"
+
+      - |
+        echo
+        echo "Created RTK Query client project:"
+        echo "  target:      {{.OUTPUT}}"
+        echo "  package:     {{.PROJECT_NAME}}"
+        echo "  exportName:  {{.EXPORT_NAME}}"
+        echo
+        echo "The generated base API is BASE_URL-agnostic and uses relative URLs."
+        echo "Adopters should configure their own base API or runtime fetch behavior as needed."
+
+  rtk-query-project:init:
+    internal: true
+    cmds:
+      - mkdir -p "{{.OUTPUT}}/src/store" "{{.OUTPUT}}/src/generated"
+
+      - |
+        cat > "{{.OUTPUT}}/package.json" <<'EOF'
+        {
+          "name": "{{.PROJECT_NAME}}",
+          "version": "0.1.0",
+          "private": true,
+          "type": "module",
+          "scripts": {
+            "generate": "rtk-query-codegen-openapi openapi-config.ts",
+            "typecheck": "tsc --noEmit",
+            "build": "tsc -p tsconfig.json"
+          },
+          "dependencies": {
+            "@reduxjs/toolkit": "latest",
+            "react": "latest",
+            "react-redux": "latest"
+          },
+          "devDependencies": {
+            "@rtk-query/codegen-openapi": "latest",
+            "@types/node": "latest",
+            "typescript": "latest"
+          }
+        }
+        EOF
+
+      - |
+        cat > "{{.OUTPUT}}/tsconfig.json" <<'EOF'
+        {
+          "compilerOptions": {
+            "target": "ES2022",
+            "module": "NodeNext",
+            "moduleResolution": "NodeNext",
+            "lib": ["ES2022", "DOM"],
+            "strict": true,
+            "declaration": true,
+            "declarationMap": true,
+            "sourceMap": true,
+            "skipLibCheck": true,
+            "esModuleInterop": true,
+            "forceConsistentCasingInFileNames": true,
+            "outDir": "dist",
+            "rootDir": "."
+          },
+          "include": [
+            "src/**/*.ts",
+            "openapi-config.ts"
+          ]
+        }
+        EOF
+
+      - |
+        cat > "{{.OUTPUT}}/src/store/emptyApi.ts" <<'EOF'
+        import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+
+        /**
+         * Intentionally BASE_URL-agnostic.
+         *
+         * Generated endpoints use relative OpenAPI paths.
+         *
+         * Adopters may:
+         * - use this as-is when the API is served from the same origin;
+         * - replace this module with their own configured createApi instance;
+         * - alias this module at build time to an application-specific base API.
+         */
+        export const emptySplitApi = createApi({
+          reducerPath: 'api',
+          baseQuery: fetchBaseQuery({
+            baseUrl: '',
+          }),
+          tagTypes: [],
+          endpoints: () => ({}),
+        })
+        EOF
+
+      - |
+        cat > "{{.OUTPUT}}/openapi-config.ts" <<'EOF'
+        import type { ConfigFile } from '@rtk-query/codegen-openapi'
+
+        const config: ConfigFile = {
+          schemaFile: '{{.SCHEMA}}',
+          apiFile: './src/store/emptyApi.ts',
+          apiImport: 'emptySplitApi',
+          outputFile: './src/generated/api.ts',
+          exportName: '{{.EXPORT_NAME}}',
+          hooks: {{.HOOKS}},
+          tag: {{.TAGS}},
+        }
+
+        export default config
+        EOF
+
+      - |
+        cat > "{{.OUTPUT}}/src/index.ts" <<'EOF'
+        export * from './store/emptyApi.js'
+        export * from './generated/api.js'
+        EOF
+
+      - |
+        cat > "{{.OUTPUT}}/README.md" <<'EOF'
+        # RTK Query OpenAPI Client
+
+        This project was generated from an OpenAPI schema using `@rtk-query/codegen-openapi`.
+
+        The generated client is intentionally BASE_URL-agnostic. Endpoint paths are generated from the OpenAPI document as relative paths.
+
+        ## Configuring the base URL
+
+        This package does not hard-code a backend URL.
+
+        Adopters should configure the base API in the consuming application. Typical options are:
+
+        1. Serve the API from the same origin and use the generated relative URLs as-is.
+        2. Replace `src/store/emptyApi.ts` with an application-specific `createApi` instance.
+        3. Use a bundler alias so `src/store/emptyApi.ts` resolves to the adopter's configured base API module.
+        EOF
+
+  rtk-query-project:install:
+    internal: true
+    dir: "{{.OUTPUT}}"
+    cmds:
+      - npm install
+
+  rtk-query-project:generate:
+    internal: true
+    dir: "{{.OUTPUT}}"
+    cmds:
+      - npm run generate
+
+  rtk-query-project:check:
+    internal: true
+    dir: "{{.OUTPUT}}"
+    cmds:
+      - npm run typecheck
