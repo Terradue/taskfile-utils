@@ -167,7 +167,6 @@ tasks:
       - sh: command -v yq >/dev/null 2>&1
         msg: "yq is required to read info.title from the OpenAPI schema"
     vars:
-      OUTPUT: '{{.OUTPUT | default "."}}'
       PACKAGE_MANAGER: npm
       HOOKS: true
       TAGS: true
@@ -201,6 +200,8 @@ tasks:
 
           console.log(`${slug}-rtk-client`)
           NODE
+
+      OUTPUT: '{{.OUTPUT | default "."}}/{{.PROJECT_NAME}}'
 
       EXPORT_NAME:
         sh: |
