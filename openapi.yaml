@@ -351,7 +351,7 @@ tasks:
         EOF
 
       - |
-        cat > "{{.TARGET}}/openapi-config.cjs" <<'EOF'
+        cat > "{{.OUTPUT}}/openapi-config.cjs" <<'EOF'
         /** @type {import('@rtk-query/codegen-openapi').ConfigFile} */
         const config = {
           schemaFile: '{{.SCHEMA}}',
