@@ -141,10 +141,10 @@ tasks:
     desc: Create a NodeJS/TypeScript RTK Query project from an OpenAPI schema
     summary: |
       Usage:
-        task rtk-query-project SCHEMA=./openapi.yaml OUTPUT=./generated/client
+        task rtk-query-project API=./openapi.yaml OUTPUT=./generated/client
 
       Required vars:
-        SCHEMA   Path to the OpenAPI YAML/JSON schema
+        API   Path to the OpenAPI YAML/JSON schema
         OUTPUT   Output directory for the generated NodeJS project
 
       Derived from OpenAPI info.title:
@@ -156,10 +156,10 @@ tasks:
         TAGS=true
     requires:
       vars:
-        - SCHEMA
+        - API
     preconditions:
-      - sh: test -f "{{.SCHEMA}}"
-        msg: "SCHEMA must point to an existing OpenAPI YAML/JSON file"
+      - sh: test -f "{{.API}}"
+        msg: "API must point to an existing OpenAPI YAML/JSON file"
       - sh: command -v node >/dev/null 2>&1
         msg: "node is required"
       - sh: command -v npm >/dev/null 2>&1
@@ -172,18 +172,18 @@ tasks:
       HOOKS: true
       TAGS: true
 
-      SCHEMA_ABS:
+      API_ABS:
         sh: |
-          cd "$(dirname "{{.SCHEMA}}")"
-          printf '%s/%s\n' "$(pwd)" "$(basename "{{.SCHEMA}}")"
+          cd "$(dirname "{{.API}}")"
+          printf '%s/%s\n' "$(pwd)" "$(basename "{{.API}}")"
 
       OPENAPI_TITLE:
         sh: |
-          yq -r '.info.title // ""' "{{.SCHEMA}}"
+          yq -r '.info.title // ""' "{{.API}}"
 
       PROJECT_NAME:
         sh: |
-          TITLE="$(yq -r '.info.title // "openapi"' "{{.SCHEMA}}")"
+          TITLE="$(yq -r '.info.title // "openapi"' "{{.API}}")"
           node - "$TITLE" <<'NODE'
           const title = process.argv[2] || 'openapi'
 
@@ -204,7 +204,7 @@ tasks:
 
       EXPORT_NAME:
         sh: |
-          TITLE="$(yq -r '.info.title // "openapi"' "{{.SCHEMA}}")"
+          TITLE="$(yq -r '.info.title // "openapi"' "{{.API}}")"
           node - "$TITLE" <<'NODE'
           const title = process.argv[2] || 'openapi'
 
@@ -236,7 +236,7 @@ tasks:
     cmds:
       - task: rtk-query-project:init
         vars:
-          SCHEMA: "{{.SCHEMA_ABS}}"
+          API: "{{.API_ABS}}"
           OUTPUT: "{{.OUTPUT}}"
           PROJECT_NAME: "{{.PROJECT_NAME}}"
           EXPORT_NAME: "{{.EXPORT_NAME}}"
@@ -349,7 +349,7 @@ tasks:
         import type { ConfigFile } from '@rtk-query/codegen-openapi'
 
         const config: ConfigFile = {
-          schemaFile: '{{.SCHEMA}}',
+          schemaFile: '{{.API}}',
           apiFile: './src/store/emptyApi.ts',
           apiImport: 'emptySplitApi',
           outputFile: './src/generated/api.ts',
