@@ -299,8 +299,8 @@ tasks:
       {
         "compilerOptions": {
           "target": "ES2022",
-          "module": "NodeNext",
-          "moduleResolution": "NodeNext",
+          "module": "ESNext",
+          "moduleResolution": "Bundler"
           "lib": ["ES2022", "DOM"],
           "strict": true,
           "declaration": true,
