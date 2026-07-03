@@ -141,49 +141,46 @@ tasks:
     desc: Create a NodeJS/TypeScript RTK Query project from an OpenAPI schema
     summary: |
       Usage:
-        task rtk-query-project API=./openapi.yaml OUTPUT=./generated/client
+        task rtk-query-project API=./openapi.yaml OUTPUT=./generated
 
       Required vars:
-        API   Path to the OpenAPI YAML/JSON schema
-        OUTPUT   Output directory for the generated NodeJS project
+        API      Path to the OpenAPI YAML/JSON schema
+
+      Optional vars:
+        OUTPUT   Parent output directory for the generated NodeJS project, defaults to current directory
+        HOOKS=true
+        TAGS=true
 
       Derived from OpenAPI info.title:
         package.json name: <info.title-kebab-case>-rtk-client
         RTK exportName:   <info.title-camel-case>Api
-
-      Optional vars:
-        HOOKS=true
-        TAGS=true
+        output directory: <OUTPUT>/<package.json name>
     requires:
       vars:
         - API
     preconditions:
-      - sh: test -f "{{.API}}"
-        msg: "API must point to an existing OpenAPI YAML/JSON file"
-      - sh: command -v node >/dev/null 2>&1
-        msg: "node is required"
-      - sh: command -v npm >/dev/null 2>&1
-        msg: "npm is required"
-      - sh: command -v yq >/dev/null 2>&1
-        msg: "yq is required to read info.title from the OpenAPI schema"
+    - sh: test -f "{{.API}}"
+      msg: "API must point to an existing OpenAPI YAML/JSON file"
+    - sh: command -v node >/dev/null 2>&1
+      msg: "node is required"
+    - sh: command -v npm >/dev/null 2>&1
+      msg: "npm is required"
+    - sh: command -v yq >/dev/null 2>&1
+      msg: "yq is required to read info.title from the OpenAPI schema"
     vars:
       PACKAGE_MANAGER: npm
-      HOOKS: true
-      TAGS: true
-
+      HOOKS: '{{.HOOKS | default "true"}}'
+      TAGS: '{{.TAGS | default "true"}}'
       API_ABS:
         sh: |
           cd "$(dirname "{{.API}}")"
           printf '%s/%s\n' "$(pwd)" "$(basename "{{.API}}")"
-
       OPENAPI_TITLE:
         sh: |
           yq -r '.info.title // ""' "{{.API}}"
-
       OPENAPI_VERSION:
         sh: |
-          yq -r '.info.version // ""' "{{.API}}"
-
+          yq -r '.info.version // "0.1.0"' "{{.API}}"
       PROJECT_NAME:
         sh: |
           TITLE="$(yq -r '.info.title // "openapi"' "{{.API}}")"
@@ -204,9 +201,8 @@ tasks:
 
           console.log(`${slug}-rtk-client`)
           NODE
-
-      OUTPUT: '{{.OUTPUT | default "."}}/{{.PROJECT_NAME}}'
-
+      OUTPUT_ROOT: '{{.OUTPUT | default "."}}'
+      OUTPUT: '{{.OUTPUT_ROOT}}/{{.PROJECT_NAME}}'
       EXPORT_NAME:
         sh: |
           TITLE="$(yq -r '.info.title // "openapi"' "{{.API}}")"
@@ -237,159 +233,151 @@ tasks:
 
           console.log(`${name}Api`)
           NODE
-
     cmds:
-      - task: rtk-query-project:init
-        vars:
-          API: "{{.API_ABS}}"
-          OUTPUT: "{{.OUTPUT}}"
-          PROJECT_NAME: "{{.PROJECT_NAME}}"
-          OPENAPI_VERSION: "{{.OPENAPI_VERSION}}"
-          EXPORT_NAME: "{{.EXPORT_NAME}}"
-          HOOKS: "{{.HOOKS}}"
-          TAGS: "{{.TAGS}}"
-
-      - task: rtk-query-project:install
-        vars:
-          OUTPUT: "{{.OUTPUT}}"
-
-      - task: rtk-query-project:generate
-        vars:
-          OUTPUT: "{{.OUTPUT}}"
-
-      - task: rtk-query-project:check
-        vars:
-          OUTPUT: "{{.OUTPUT}}"
-
-      - |
-        echo
-        echo "Created RTK Query client project:"
-        echo "  target:      {{.OUTPUT}}"
-        echo "  package:     {{.PROJECT_NAME}}"
-        echo "  exportName:  {{.EXPORT_NAME}}"
-        echo
-        echo "The generated base API is BASE_URL-agnostic and uses relative URLs."
-        echo "Adopters should configure their own base API or runtime fetch behavior as needed."
+    - task: rtk-query-project:init
+      vars:
+        API: "{{.API_ABS}}"
+        OUTPUT: "{{.OUTPUT}}"
+        PROJECT_NAME: "{{.PROJECT_NAME}}"
+        OPENAPI_VERSION: "{{.OPENAPI_VERSION}}"
+        EXPORT_NAME: "{{.EXPORT_NAME}}"
+        HOOKS: "{{.HOOKS}}"
+        TAGS: "{{.TAGS}}"
+    - task: rtk-query-project:install
+      vars:
+        OUTPUT: "{{.OUTPUT}}"
+    - task: rtk-query-project:generate
+      vars:
+        OUTPUT: "{{.OUTPUT}}"
+    - task: rtk-query-project:check
+      vars:
+        OUTPUT: "{{.OUTPUT}}"
+    - |
+      echo
+      echo "Created RTK Query client project:"
+      echo "  target:      {{.OUTPUT}}"
+      echo "  package:     {{.PROJECT_NAME}}"
+      echo "  exportName:  {{.EXPORT_NAME}}"
+      echo
+      echo "The generated base API is BASE_URL-agnostic and uses relative URLs."
+      echo "Adopters should configure their own base API or runtime fetch behavior as needed."
 
   rtk-query-project:init:
     internal: true
+    preconditions:
+    - sh: test -f "{{.API}}"
+      msg: "API must point to an existing OpenAPI YAML/JSON file"
     cmds:
-      - mkdir -p "{{.OUTPUT}}/src/store" "{{.OUTPUT}}/src/generated"
-
-      - |
-        cat > "{{.OUTPUT}}/package.json" <<'EOF'
-        {
-          "name": "{{.PROJECT_NAME}}",
-          "version": "{{.OPENAPI_VERSION}}",
-          "private": true,
-          "type": "module",
-          "scripts": {
-            "generate": "rtk-query-codegen-openapi openapi-config.cjs",
-            "typecheck": "tsc --noEmit",
-            "build": "tsc -p tsconfig.json"
-          },
-          "dependencies": {
-            "@reduxjs/toolkit": "latest",
-            "react": "latest",
-            "react-redux": "latest"
-          },
-          "devDependencies": {
-            "@rtk-query/codegen-openapi": "latest",
-            "@types/node": "latest",
-            "typescript": "latest"
-          }
+    - mkdir -p "{{.OUTPUT}}/src/store" "{{.OUTPUT}}/src/generated"
+    - rm -f "{{.OUTPUT}}/openapi-config.ts"
+    - |
+      cat > "{{.OUTPUT}}/package.json" <<'EOF'
+      {
+        "name": "{{.PROJECT_NAME}}",
+        "version": "{{.OPENAPI_VERSION}}",
+        "private": true,
+        "type": "module",
+        "scripts": {
+          "generate": "rtk-query-codegen-openapi openapi-config.cjs",
+          "typecheck": "tsc --noEmit",
+          "build": "tsc -p tsconfig.json"
+        },
+        "dependencies": {
+          "@reduxjs/toolkit": "latest",
+          "react": "latest",
+          "react-redux": "latest"
+        },
+        "devDependencies": {
+          "@rtk-query/codegen-openapi": "latest",
+          "@types/node": "latest",
+          "typescript": "latest"
         }
-        EOF
+      }
+      EOF
+    - |
+      cat > "{{.OUTPUT}}/tsconfig.json" <<'EOF'
+      {
+        "compilerOptions": {
+          "target": "ES2022",
+          "module": "NodeNext",
+          "moduleResolution": "NodeNext",
+          "lib": ["ES2022", "DOM"],
+          "strict": true,
+          "declaration": true,
+          "declarationMap": true,
+          "sourceMap": true,
+          "skipLibCheck": true,
+          "esModuleInterop": true,
+          "forceConsistentCasingInFileNames": true,
+          "outDir": "dist",
+          "rootDir": "."
+        },
+        "include": [
+          "src/**/*.ts"
+        ]
+      }
+      EOF
+    - |
+      cat > "{{.OUTPUT}}/src/store/emptyApi.ts" <<'EOF'
+      import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-      - |
-        cat > "{{.OUTPUT}}/tsconfig.json" <<'EOF'
-        {
-          "compilerOptions": {
-            "target": "ES2022",
-            "module": "NodeNext",
-            "moduleResolution": "NodeNext",
-            "lib": ["ES2022", "DOM"],
-            "strict": true,
-            "declaration": true,
-            "declarationMap": true,
-            "sourceMap": true,
-            "skipLibCheck": true,
-            "esModuleInterop": true,
-            "forceConsistentCasingInFileNames": true,
-            "outDir": "dist",
-            "rootDir": "."
-          },
-          "include": [
-            "src/**/*.ts",
-            "openapi-config.cjs"
-          ]
-        }
-        EOF
+      /**
+        * Intentionally BASE_URL-agnostic.
+        *
+        * Generated endpoints use relative OpenAPI paths.
+        *
+        * Adopters may:
+        * - use this as-is when the API is served from the same origin;
+        * - replace this module with their own configured createApi instance;
+        * - alias this module at build time to an application-specific base API.
+        */
+      export const emptySplitApi = createApi({
+        reducerPath: 'api',
+        baseQuery: fetchBaseQuery({
+          baseUrl: '',
+        }),
+        tagTypes: [],
+        endpoints: () => ({}),
+      })
+      EOF
+    - |
+      cat > "{{.OUTPUT}}/openapi-config.cjs" <<'EOF'
+      /** @type {import('@rtk-query/codegen-openapi').ConfigFile} */
+      const config = {
+        schemaFile: '{{.API}}',
+        apiFile: './src/store/emptyApi.ts',
+        apiImport: 'emptySplitApi',
+        outputFile: './src/generated/api.ts',
+        exportName: '{{.EXPORT_NAME}}',
+        hooks: {{.HOOKS}},
+        tag: {{.TAGS}},
+      }
 
-      - |
-        cat > "{{.OUTPUT}}/src/store/emptyApi.ts" <<'EOF'
-        import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+      module.exports = config
+      EOF
+    - |
+      cat > "{{.OUTPUT}}/src/index.ts" <<'EOF'
+      export * from './store/emptyApi.js'
+      export * from './generated/api.js'
+      EOF
+    - |
+      cat > "{{.OUTPUT}}/README.md" <<'EOF'
+      # RTK Query OpenAPI Client
 
-        /**
-         * Intentionally BASE_URL-agnostic.
-         *
-         * Generated endpoints use relative OpenAPI paths.
-         *
-         * Adopters may:
-         * - use this as-is when the API is served from the same origin;
-         * - replace this module with their own configured createApi instance;
-         * - alias this module at build time to an application-specific base API.
-         */
-        export const emptySplitApi = createApi({
-          reducerPath: 'api',
-          baseQuery: fetchBaseQuery({
-            baseUrl: '',
-          }),
-          tagTypes: [],
-          endpoints: () => ({}),
-        })
-        EOF
+      This project was generated from an OpenAPI schema using `@rtk-query/codegen-openapi`.
 
-      - |
-        cat > "{{.OUTPUT}}/openapi-config.cjs" <<'EOF'
-        /** @type {import('@rtk-query/codegen-openapi').ConfigFile} */
-        const config = {
-          schemaFile: '{{.SCHEMA}}',
-          apiFile: './src/store/emptyApi.ts',
-          apiImport: 'emptySplitApi',
-          outputFile: './src/generated/api.ts',
-          exportName: '{{.EXPORT_NAME}}',
-          hooks: {{.HOOKS}},
-          tag: {{.TAGS}},
-        }
+      The generated client is intentionally BASE_URL-agnostic. Endpoint paths are generated from the OpenAPI document as relative paths.
 
-        module.exports = config
-        EOF
+      ## Configuring the base URL
 
-      - |
-        cat > "{{.OUTPUT}}/src/index.ts" <<'EOF'
-        export * from './store/emptyApi.js'
-        export * from './generated/api.js'
-        EOF
+      This package does not hard-code a backend URL.
 
-      - |
-        cat > "{{.OUTPUT}}/README.md" <<'EOF'
-        # RTK Query OpenAPI Client
+      Adopters should configure the base API in the consuming application. Typical options are:
 
-        This project was generated from an OpenAPI schema using `@rtk-query/codegen-openapi`.
-
-        The generated client is intentionally BASE_URL-agnostic. Endpoint paths are generated from the OpenAPI document as relative paths.
-
-        ## Configuring the base URL
-
-        This package does not hard-code a backend URL.
-
-        Adopters should configure the base API in the consuming application. Typical options are:
-
-        1. Serve the API from the same origin and use the generated relative URLs as-is.
-        2. Replace `src/store/emptyApi.ts` with an application-specific `createApi` instance.
-        3. Use a bundler alias so `src/store/emptyApi.ts` resolves to the adopter's configured base API module.
-        EOF
+      1. Serve the API from the same origin and use the generated relative URLs as-is.
+      2. Replace `src/store/emptyApi.ts` with an application-specific `createApi` instance.
+      3. Use a bundler alias so `src/store/emptyApi.ts` resolves to the adopter's configured base API module.
+      EOF
 
   rtk-query-project:install:
     internal: true
