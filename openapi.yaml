@@ -121,6 +121,9 @@ tasks:
       msg: "Missing uv, see https://docs.astral.sh/uv/"
     vars:
       OUTPUT: '{{.OUTPUT | default "."}}'
+      OPENAPI_VERSION:
+        sh: |
+          yq -r '.info.version // "0.1.0"' "{{.API}}"
       OUTPUT_DIR:
         sh: yq '.info.title | downcase | sub("[[:space:]]+", "-") + "-client"' {{.API}}
     cmds:
@@ -136,6 +139,10 @@ tasks:
       --path {{.API}} \
       --output-path {{.OUTPUT}}/{{.OUTPUT_DIR}} \
       --overwrite
+    - |
+      cat > "{{.OUTPUT}}/{{.OUTPUT_DIR}}/__about__.py" <<'EOF'
+      __version__ = "{{.OPENAPI_VERSION}}"
+      EOF
 
   rtk-query-project:
     desc: Create a NodeJS/TypeScript RTK Query project from an OpenAPI schema
