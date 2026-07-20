@@ -53,7 +53,6 @@ tasks:
       --use-field-description \
       --use-one-literal-as-default \
       --use-schema-description \
-      --use-schema-description \
       --use-standard-collections
 
   generate_schema_doc:
