@@ -48,6 +48,7 @@ tasks:
       --output-model-type pydantic_v2.BaseModel \
       --reuse-model \
       --snake-case-field \
+      --use-annotated \
       --use-default \
       --use-double-quotes \
       --use-field-description \
