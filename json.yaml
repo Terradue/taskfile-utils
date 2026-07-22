@@ -54,7 +54,8 @@ tasks:
       --use-field-description \
       --use-one-literal-as-default \
       --use-schema-description \
-      --use-standard-collections
+      --use-standard-collections \
+      --set-default-enum-member
 
   generate_schema_doc:
     desc: Generates the JSON Schema related Markdown documentation pages.
