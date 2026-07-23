@@ -79,6 +79,22 @@ tasks:
           {{.PROPERTY}} \
           "$TOML_VALUE"
 
+  generate_fastapi:
+    preconditions:
+    - sh: command -v uv >/dev/null 2>&1
+      msg: "Missing uv, see https://docs.astral.sh/uv/"
+    cmds:
+    - |
+      uv run \
+      --no-cache \
+      --no-project \
+      --with 'datamodel-code-generator[ruff]' \
+      --with fastapi-code-generator \
+      fastapi-codegen \
+      --input {{.API}} \
+      --output {{.OUTPUT}} \
+      --output-model-type pydantic_v2.BaseModel
+
   generate_skeleton:
     desc: Given an input OpenAPI YAML document, creates FastAPI server skeleton with Pydantic v2 models.
     preconditions:
@@ -103,16 +119,11 @@ tasks:
         TOML_PATH: '{{.OUTPUT}}/{{.OUTPUT_DIR}}/pyproject.toml'
         PROPERTY: 'project.dependencies'
         VALUE: '["fastapi", "uvicorn", "pydantic"]'
-    - |
-      uv run \
-      --no-cache \
-      --no-project \
-      --with 'datamodel-code-generator[ruff]' \
-      --with fastapi-code-generator \
-      fastapi-codegen \
-      --input {{.API}} \
-      --output {{.OUTPUT}}/{{.OUTPUT_DIR}}/src/$(echo "{{.OUTPUT_DIR}}" | sed 's/-/_/g') \
-      --output-model-type pydantic_v2.BaseModel
+    - task: generate_fastapi
+      vars:
+        API: '{{.API}}'
+        OUTPUT: |
+          {{.OUTPUT}}/{{.OUTPUT_DIR}}/src/$(echo "{{.OUTPUT_DIR}}" | sed 's/-/_/g')
 
   generate_client:
     desc: Given an input OpenAPI YAML document, creates an httpx based client implementation with Pydantic v2 models.
