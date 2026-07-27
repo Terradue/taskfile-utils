@@ -62,7 +62,7 @@ tasks:
     - sh: command -v hatch >/dev/null 2>&1
       msg: "Missing hatch, see https://hatch.pypa.io/latest/"
     cmds:
-    - hatch run dev:security
+    - hatch run test:security
 
   pre-commit:install:
     desc: Run pre-commit hooks
