@@ -32,6 +32,14 @@ tasks:
     cmds:
     - hatch run dev:check
 
+  type_check:
+    desc: Run static type quality checks
+    preconditions:
+    - sh: command -v hatch >/dev/null 2>&1
+      msg: "Missing hatch, see https://hatch.pypa.io/latest/"
+    cmds:
+    - hatch run dev:typecheck
+
   lint:
     desc: Run linters
     preconditions:
