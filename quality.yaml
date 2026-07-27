@@ -32,7 +32,7 @@ tasks:
     cmds:
     - hatch run dev:check
 
-  type_check:
+  type-check:
     desc: Run static type quality checks
     preconditions:
     - sh: command -v hatch >/dev/null 2>&1
@@ -48,10 +48,26 @@ tasks:
     cmds:
     - hatch run dev:lint
 
-  pre_commit:
+  pre-commit:install:
     desc: Run pre-commit hooks
     preconditions:
-    - sh: command -v hatch >/dev/null 2>&1
-      msg: "Missing hatch, see https://hatch.pypa.io/latest/"
+    - sh: command -v uv >/dev/null 2>&1
+      msg: "Missing uv, see https://docs.astral.sh/uv/"
     cmds:
-    - hatch run dev:pre-commit run --all-files
+    - |
+      uv run \
+      --no-cache \
+      --with "pre-commit>=4.6.1" \
+      pre-commit install
+
+  pre-commit:run:
+    desc: Run pre-commit hooks
+    preconditions:
+    - sh: command -v uv >/dev/null 2>&1
+      msg: "Missing uv, see https://docs.astral.sh/uv/"
+    cmds:
+    - |
+      uv run \
+      --no-cache \
+      --with "pre-commit>=4.6.1" \
+      pre-commit run --all-files
