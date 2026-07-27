@@ -56,6 +56,14 @@ tasks:
     cmds:
     - hatch run dev:lint
 
+  security:
+    desc: Run Bandit scanner
+    preconditions:
+    - sh: command -v hatch >/dev/null 2>&1
+      msg: "Missing hatch, see https://hatch.pypa.io/latest/"
+    cmds:
+    - hatch run dev:security
+
   pre-commit:install:
     desc: Run pre-commit hooks
     preconditions:
