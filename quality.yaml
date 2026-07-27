@@ -19,23 +19,39 @@ tasks:
   test:
     desc: Run tests
     preconditions:
-    - sh: command -v hatch >/dev/null 2>&1
-      msg: "Missing hatch, see https://hatch.pypa.io/latest/"
+    - sh: command -v uv >/dev/null 2>&1
+      msg: "Missing uv, see https://docs.astral.sh/uv/"
     cmds:
-    - hatch run test:test-show-setup
+    - |
+      uv run \
+      --no-cache \
+      --no-project \
+      --with pytest \
+      --with pytest-cov \
+      pytest --setup-show
 
   check:
     desc: Run code quality checks
     preconditions:
-    - sh: command -v hatch >/dev/null 2>&1
-      msg: "Missing hatch, see https://hatch.pypa.io/latest/"
+    - sh: command -v uv >/dev/null 2>&1
+      msg: "Missing uv, see https://docs.astral.sh/uv/"
     cmds:
-    - hatch run dev:check
+    - |
+      uv run \
+      --no-cache \
+      --no-project \
+      --with ruff \
+      ruff check --fix src tests
 
   lint:
     desc: Run linters
     preconditions:
-    - sh: command -v hatch >/dev/null 2>&1
-      msg: "Missing hatch, see https://hatch.pypa.io/latest/"
+    - sh: command -v uv >/dev/null 2>&1
+      msg: "Missing uv, see https://docs.astral.sh/uv/"
     cmds:
-    - hatch run dev:lint
+    - |
+      uv run \
+      --no-cache \
+      --no-project \
+      --with ruff \
+      ruff format src tests
