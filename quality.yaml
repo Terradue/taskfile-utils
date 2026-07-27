@@ -24,6 +24,14 @@ tasks:
     cmds:
     - hatch run test:test-show-setup
 
+  test:coverage:
+    desc: Run tests + coverage
+    preconditions:
+    - sh: command -v hatch >/dev/null 2>&1
+      msg: "Missing hatch, see https://hatch.pypa.io/latest/"
+    cmds:
+    - hatch run test:test-cov
+
   check:
     desc: Run code quality checks
     preconditions:
