@@ -132,12 +132,12 @@ tasks:
       msg: "Missing uv, see https://docs.astral.sh/uv/"
     vars:
       META: '{{.META | default "none"}}'
-      OUTPUT: '{{.OUTPUT | default "."}}'
+      OUTPUT: '{{.OUTPUT | default "."}}/src'
       OPENAPI_VERSION:
         sh: |
           yq -r '.info.version // "0.1.0"' "{{.API}}"
       OUTPUT_DIR:
-        sh: yq '.info.title | downcase | sub("[[:space:]]+", "-") + "-client"' {{.API}}
+        sh: yq '.info.title | downcase | sub("[[:space:]]+", "_") + "_client"' {{.API}}
     cmds:
     - mkdir -p {{.OUTPUT}}/{{.OUTPUT_DIR}}
     - |
