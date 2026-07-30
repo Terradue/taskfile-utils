@@ -131,6 +131,7 @@ tasks:
     - sh: command -v uv >/dev/null 2>&1
       msg: "Missing uv, see https://docs.astral.sh/uv/"
     vars:
+      META: '{{.META | default "none"}}'
       OUTPUT: '{{.OUTPUT | default "."}}'
       OPENAPI_VERSION:
         sh: |
@@ -146,7 +147,7 @@ tasks:
       --with openapi-python-client \
       --with 'datamodel-code-generator[ruff]' \
       openapi-python-client generate \
-      --meta pdm \
+      --meta {{.META}} \
       --path {{.API}} \
       --output-path {{.OUTPUT}}/{{.OUTPUT_DIR}} \
       --overwrite
