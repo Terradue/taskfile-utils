@@ -55,6 +55,7 @@ tasks:
       --use-one-literal-as-default \
       --use-schema-description \
       --use-standard-collections \
+      --use-union-operator \
       --set-default-enum-member
 
   generate_schema_doc:
