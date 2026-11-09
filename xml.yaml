@@ -29,5 +29,5 @@ tasks:
       --with "xsdata[cli,lxml]==24.5" \
       --with "xsdata-pydantic==24.5" \
       xsdata generate {{.SCHEMA}} \
-      --output pydantic
+      --output pydantic \
       --package {{.OUTPUT}}
