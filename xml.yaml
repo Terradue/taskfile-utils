@@ -22,13 +22,15 @@ tasks:
     - sh: command -v uv >/dev/null 2>&1
       msg: "Missing uv, see https://docs.astral.sh/uv/"
     dir: '{{.OUTPUT_DIR}}'
+    vars:
+      XSDATA_VERSION: '26.10'
     cmds:
     - |
       uv run \
       --no-project \
       --python 3.12 \
-      --with "xsdata[cli,lxml]==26.10" \
-      --with "xsdata-pydantic==26.10" \
+      --with "xsdata[cli,lxml]=={{.XSDATA_VERSION}}" \
+      --with "xsdata-pydantic=={{.XSDATA_VERSION}}" \
       xsdata generate {{.SCHEMA}} \
       --output pydantic \
       --package {{.PACKAGE}}
