@@ -21,6 +21,7 @@ tasks:
     preconditions:
     - sh: command -v uv >/dev/null 2>&1
       msg: "Missing uv, see https://docs.astral.sh/uv/"
+    dir: '{{.OUTPUT_DIR}}'
     cmds:
     - |
       uv run \
@@ -30,4 +31,4 @@ tasks:
       --with "xsdata-pydantic==24.5" \
       xsdata generate {{.SCHEMA}} \
       --output pydantic \
-      --package {{.OUTPUT}}
+      --package {{.PACKAGE}}
