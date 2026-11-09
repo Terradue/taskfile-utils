@@ -27,8 +27,8 @@ tasks:
       uv run \
       --no-project \
       --python 3.12 \
-      --with "xsdata[cli,lxml]==24.5" \
-      --with "xsdata-pydantic==24.5" \
+      --with "xsdata[cli,lxml]==26.10" \
+      --with "xsdata-pydantic==26.10" \
       xsdata generate {{.SCHEMA}} \
       --output pydantic \
       --package {{.PACKAGE}}
